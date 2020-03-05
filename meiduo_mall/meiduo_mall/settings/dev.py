@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
+# sys.path 优先找当前目录,存的是导包路径.它是一个列表
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+sys.path.insert(0,os.path.join(BASE_DIR,'apps'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -29,6 +31,8 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
+# sys.path.append(os.path.join(BASE_DIR, ...))
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 完整路径
+    # "meiduo_mall.apps.users.UsersConfig",
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -195,3 +202,5 @@ LOGGING = {
         },
     }
 }
+# 指定用户模型类
+# AUTH_USER_MODEL = 'users.User'  # 应用名称.模型类名称
