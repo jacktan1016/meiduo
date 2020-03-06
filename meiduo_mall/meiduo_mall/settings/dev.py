@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # 完整路径
     # "meiduo_mall.apps.users.UsersConfig",
     'users.apps.UsersConfig',
+    'verifycation.apps.VerifycationConfig',
 ]
 
 MIDDLEWARE = [
@@ -203,4 +204,4 @@ LOGGING = {
     }
 }
 # 指定用户模型类
-# AUTH_USER_MODEL = 'users.User'  # 应用名称.模型类名称
+AUTH_USER_MODEL = 'users.User'  # 应用名称.模型类名称
