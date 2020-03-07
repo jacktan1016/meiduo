@@ -6,6 +6,7 @@ from .models import User
 from django.contrib.auth import login,authenticate
 from meiduo_mall.utils.response_code import RETCODE
 from django_redis import get_redis_connection
+from . import contants
 
 # Create your views here.
 class RegisterView(View):
@@ -122,4 +123,7 @@ class LoginView(View):
             # 4、响应
             # 保持状态
             login(request,user)
-            return redirect('/')
+            # 设置cookie，让注册页面抬头显示名字
+            response = redirect('/')
+            response.set_cookie('username',username,max_age=contants.COOKIE_TIME)
+            return response

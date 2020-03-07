@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # "meiduo_mall.apps.users.UsersConfig",
     'users.apps.UsersConfig',
     'verifycation.apps.VerifycationConfig',
+    'contents.apps.ContentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -219,3 +220,5 @@ LOGGING = {
 }
 # 指定用户模型类
 AUTH_USER_MODEL = 'users.User'  # 应用名称.模型类名称
+# 自定义Django后端验证
+AUTHENTICATION_BACKENDS = ['meiduo_mall.utils.authenticate.MeiDuoModelBackend',]
