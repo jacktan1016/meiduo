@@ -3,8 +3,9 @@ from django.views import View
 import re
 from django.http import HttpResponseForbidden,JsonResponse
 from .models import User
-from django.contrib.auth import login
+from django.contrib.auth import login,authenticate
 from meiduo_mall.utils.response_code import RETCODE
+from django_redis import get_redis_connection
 
 # Create your views here.
 class RegisterView(View):
@@ -28,7 +29,7 @@ class RegisterView(View):
         msg_code = request.POST.get('msg_code')
         # 同意协议
         allow = request.POST.get('allow')
-            
+
         # 2、验证
         # 首先判断不能全部为空
         if not all([user_name,pwd,cpwd,phone,msg_code,allow]):
@@ -51,14 +52,23 @@ class RegisterView(View):
             return HttpResponseForbidden("手机号格式不正确")
 
         # 短信验证
+        # 和redis的取值进行比较
+        sms_redis = get_redis_connection('sms_code')
+        sms_redis_code = sms_redis.get(phone)
+        if sms_redis_code is None:
+            return HttpResponseForbidden("验证码时间已经过期")
+        if sms_redis_code.decode('gbk') != msg_code:
+            return HttpResponseForbidden("对不起，验证码不正确")
+        del  sms_redis_code
 
         # 3、处理
 
+
         # 注册用户
-        User.objects.create_user(user_name)
+        user = User.objects.create_user(username=user_name,password=pwd,mobile=phone)
 
         # 保持状态
-        login(request,user_name)
+        login(request,user)
 
         # 4、响应
         return redirect('/')
@@ -88,4 +98,28 @@ class MobileCountView(View):
             "err_msg":"ok",
             "code":RETCODE.OK
             })
-        
+
+# 登录
+class LoginView(View):
+    def get(self,request):
+        return render(request,'login.html')
+
+
+    def post(self,request):
+        # 1、接收
+        username = request.POST.get('username')
+        pwd = request.POST.get('pwd')
+        # 2、验证
+        # 是不是都为空
+        if not all([username,pwd]):
+            return HttpResponseForbidden('用户名或者密码错误')
+        # 去判断是否和数据库的值是否相等
+        user = authenticate(request,username=username,password = pwd)
+        # 3、处理
+        if user is None:
+            return HttpResponseForbidden("用户名或者密码错误")
+        else:
+            # 4、响应
+            # 保持状态
+            login(request,user)
+            return redirect('/')
